@@ -13,21 +13,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
       - name: Install dependencies
         run: |
-          npm install
+          sudo apt update
+          sudo apt install -y unzip openjdk-17-jdk
+          npm install -g cordova
 
-      - name: Build project
+      - name: Unzip source code
+        run: unzip new-myapp.zip -d www
+
+      - name: Create Cordova project
         run: |
-          npm run build || echo "No build script, skipping"
+          cordova create myapp com.example.myapp "Child Learning"
+          cd myapp
+          cordova platform add android
+          rm -rf www
+          mv ../www www
+
+      - name: Build APK
+        run: |
+          cd myapp
+          cordova build android --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: app-release.apk
+          path: myapp/platforms/android/app/build/outputs/apk/release/app-release.apk
