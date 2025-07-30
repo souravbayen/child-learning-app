@@ -13,22 +13,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Cordova & unzip
         run: |
-          sudo apt update
-          sudo apt install -y unzip openjdk-17-jdk
           npm install -g cordova
+          sudo apt update
+          sudo apt install unzip openjdk-17-jdk -y
+          unzip new-myapp.zip -d www
 
-      - name: Unzip source code
-        run: unzip new-myapp.zip -d www
-
-      - name: Create Cordova project
+      - name: Create Cordova Project
         run: |
           cordova create myapp com.example.myapp "Child Learning"
           cd myapp
           cordova platform add android
-          rm -rf www
-          mv ../www www
+          rm -rf www/*
+          cp -r ../www/* www/
 
       - name: Build APK
         run: |
